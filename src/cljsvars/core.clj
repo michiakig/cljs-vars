@@ -8,13 +8,15 @@
 (def ^:dynamic *fname* "src/cljs/cljs/core.cljs")
 (def ^:dynamic *namespace* 'clojure.core) ;used for links to clojuredocs.org
 
-;; definition forms used in ClojureScript
+;; definition forms
 ;; grep -hor '^(def[[:alpha:]]*[[:space:]]' clojurescript/src/cljs | sort - | uniq -
-(def defs '#{def defn defprotocol deftype})
+;; (def cljs-defs '#{def defn defprotocol deftype})
+(def defs '#{def defmacro defmulti defn defprotocol defrecord defstruct deftype}) 
 
-(def cljs-github-url "https://github.com/clojure/clojurescript")
-(defn make-cljs-source-link [treeish fname linenum]
-  (str cljs-github-url "/blob/" treeish "/" fname "#L" linenum))
+(def cljs-github "https://github.com/clojure/clojurescript")
+(def clj-github "https://github.com/clojure/clojure")
+(defn make-source-link [base treeish fname linenum]
+  (str base "/blob/" treeish "/" fname "#L" linenum))
 (def clojuredocs-url "http://clojuredocs.org") ;/clojure_core/clojure.core/partition
 (defn make-clojuredocs-link [ns varname]
   (str clojuredocs-url "/clojure_core/" ns "/" varname))
@@ -51,10 +53,44 @@
 
 (def var-sel [:.var])
 
-(html/defsnippet var-snippet "index.html" var-sel [{[_ name & _] :form linenum :start}]
-  [:.name] (html/content (str name))
-  [:.github] (html/set-attr :href (make-cljs-source-link *branch* *fname* linenum))
-  [:.clojuredocs] (html/set-attr :href (make-clojuredocs-link *namespace* name)))
+(let [either (fn [a b] (if a
+                         (html/content (str (second (:form a))))
+                         (html/do->
+                          (html/content (str (second (:form b))))
+                          (html/add-class "hidden"))))]
+    (html/defsnippet var-snippet "index.html" var-sel [{clj :clj cljs :cljs}]
+      [:.clj] (either clj cljs)
+      [:.cljs] (either cljs clj)
+      ;; [:.github] (html/set-attr :href
+      ;;                           (make-source-link cljs-github *branch* *fname* linenum))
+      ;; [:.clojuredocs] (html/set-attr :href (make-clojuredocs-link *namespace* name))
+      ))
 
 (html/deftemplate top-level-template "index.html" [ctx]
   [:.vars] (html/content (map var-snippet ctx)))
+
+;; parse cljs, clj -> two lists of {:form '(defn ...) }
+;; sort
+;; merge
+;; {:clj {:form '(def foo ...) :linenum 1} :cljs nil}
+
+(defn -main []
+  (let [clj-fnames [".lein-git-deps/clojure/src/clj/clojure/core.clj"
+                    ".lein-git-deps/clojure/src/clj/clojure/core_deftype.clj"
+                    ".lein-git-deps/clojure/src/clj/clojure/core_print.clj"
+                    ".lein-git-deps/clojure/src/clj/clojure/core_proxy.clj"
+                    ]
+        cljs-fnames [".lein-git-deps/clojurescript/src/cljs/cljs/core.cljs"]
+        out-fname (str (.getCanonicalPath (java.io.File. ".")) "/resources/index.html")
+        compare-parsed (fn [x y] (compare (second (:form x)) (second (:form y))))
+        cljvars (map #(assoc % :clj true) (sort compare-parsed (mapcat parse-file clj-fnames)))
+        cljsvars (map #(assoc % :cljs true) (sort compare-parsed (mapcat parse-file cljs-fnames)))
+        combine (fn
+                  ([x] (if (:clj x)
+                         {:clj x :cljs nil}
+                         {:clj nil :cljs x}))
+                  ([x y] (if (:clj x)
+                           {:clj x :cljs y}
+                           {:clj y :cljs x})))
+        blob (merge-seqs combine compare-parsed cljvars cljsvars)]
+    (spit out-fname (apply str (top-level-template blob)))))
