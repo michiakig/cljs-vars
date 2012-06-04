@@ -28,6 +28,27 @@
 (defn parse-file [fname]
   (parse-string (slurp fname)))
 
+(defn merge-seqs
+  "Given a combination fn, a comparison fn, and two sorted seqs, merges
+  the seqs into one. Combination fn will be called with two args when
+  first of both seqs are equal, and called with one arg when they are
+  not equal, while comparison fn should take two args and return a
+  negative number, zero, or a positive number (see
+  clojure.core/compare). Note that resulting seq may not be sorted,
+  depending on what combinefn returns.
+
+  Example: (merge-seqs + compare [1 2 3] [2 3 4]) => [1 2 6 4]"
+
+  [combinefn comparefn s1 s2]
+  (loop [a s1 b s2 acc []]
+    (if (or (nil? a) (nil? b))
+      (into acc (map combinefn (if (nil? a) b a)))
+      (let [c (comparefn (first a) (first b))]
+        (cond
+          (= c 0) (recur (next a) (next b) (conj acc (combinefn (first a) (first b))))
+          (< c 0) (recur (next a) b (conj acc (combinefn (first a))))
+          (> c 0) (recur a (next b) (conj acc (combinefn (first b)))))))))
+
 (def var-sel [:.var])
 
 (html/defsnippet var-snippet "index.html" var-sel [{[_ name & _] :form linenum :start}]

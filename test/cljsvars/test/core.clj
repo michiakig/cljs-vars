@@ -14,3 +14,9 @@
            {:form (defprotocol IQux)
             :start 3
             :end 3}))))
+
+(deftest test-merge-seqs
+  (is (= (merge-seqs + compare [1 3 5] [2 3 4])
+         '[1 2 6 4 5]))
+  (is (= (merge-seqs (fn ([x] x) ([x y] x)) compare '[a b c] '[c d e])
+         '[a b c d e])))
