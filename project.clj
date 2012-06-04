@@ -4,4 +4,5 @@
                  [marginalia "0.7.0"]
                  [enlive "1.0.0"]]
   :git-dependencies [["https://github.com/clojure/clojurescript.git" "master"]
-                     ["https://github.com/clojure/clojure.git" "master"]])
+                     ["https://github.com/clojure/clojure.git" "master"]]
+  :main cljsvars.core)

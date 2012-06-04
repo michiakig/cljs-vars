@@ -58,7 +58,7 @@
                          (html/do->
                           (html/content (str (second (:form b))))
                           (html/add-class "hidden"))))]
-    (html/defsnippet var-snippet "index.html" var-sel [{clj :clj cljs :cljs}]
+    (html/defsnippet var-snippet "template.html" var-sel [{clj :clj cljs :cljs}]
       [:.clj] (either clj cljs)
       [:.cljs] (either cljs clj)
       ;; [:.github] (html/set-attr :href
@@ -66,7 +66,7 @@
       ;; [:.clojuredocs] (html/set-attr :href (make-clojuredocs-link *namespace* name))
       ))
 
-(html/deftemplate top-level-template "index.html" [ctx]
+(html/deftemplate top-level-template "template.html" [ctx]
   [:.vars] (html/content (map var-snippet ctx)))
 
 ;; parse cljs, clj -> two lists of {:form '(defn ...) }
