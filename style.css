@@ -1,0 +1,49 @@
+* {
+    font-family:Menlo,Consolas,Monaco,"Lucida Console",monospace;
+    margin:0px;
+    padding:0px;
+}
+
+/*
+dark blue #5881d8
+light blue #90b4fe
+dark green #63b132
+light green #91dc47 
+*/
+
+h2.clj {
+    color:#5881d8;
+}
+
+h2.cljs {
+    color:#63b132;
+}
+
+.hidden {
+    color:#A69CE8;
+    text-decoration:line-through;
+}
+
+ul {
+    list-style:none;
+}
+
+a {
+    font-size:.75em;
+    color:#90b4fe;
+}
+
+a:visited {
+    color:#90b4fe;
+}
+
+.cljs {
+    width:250px;
+    margin-left:250px;
+}
+
+.clj {
+    width:250px;
+    position:absolute;
+    left:0;
+}
