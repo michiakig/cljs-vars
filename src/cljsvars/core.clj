@@ -39,7 +39,7 @@
   clojure.core/compare). Note that resulting seq may not be sorted,
   depending on what combinefn returns.
 
-  Example: (merge-seqs + compare [1 2 3] [2 3 4]) => [1 2 6 4]"
+  Example: (merge-seqs + compare [1 2 3] [2 3 4]) => [1 4 6 4]"
 
   [combinefn comparefn s1 s2]
   (loop [a s1 b s2 acc []]
