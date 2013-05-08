@@ -1,0 +1,6 @@
+This uses lein-git-deps[0] to get the source for Clojure and ClojureScript.
+
+To run: lein deps; lein git-deps; lein run
+Then open resources/index.html
+
+[0] https://github.com/tobyhede/lein-git-deps
