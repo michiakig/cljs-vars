@@ -22,6 +22,8 @@
   (str clojuredocs-url "/clojure_core/" ns "/" varname))
 
 (defn parse-string [s]
+  "parse a string containing Clojure (or Cljs) code
+   return all results that are definition forms"
   (filter
    #(defs (first (:form %)))
   (marginalia.parser/parse*
